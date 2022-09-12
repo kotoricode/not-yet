@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "scripts": {
+    "build": "npm run minify-html && node build.js minify && tar -acf release.zip -C dist * && dir release.zip",
+    "minify-html": "html-minifier --input-dir src --output-dir dist --collapse-whitespace --remove-attribute-quotes --remove-comments --minify-css --file-ext html"
+  },
+  "devDependencies": {
+    "esbuild": "^0.15.2",
+    "eslint": "^8.21.0",
+    "html-minifier": "^4.0.0"
+  }
+}

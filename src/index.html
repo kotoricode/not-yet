@@ -1,0 +1,395 @@
+<!doctype html>
+<html>
+    <body>
+        <style>
+            body
+            {
+                margin: 0;
+                width: 1024px;
+                height: 576px;
+            }
+            
+            body > div
+            {
+                display: grid;
+            }
+            
+            .dom-hide
+            {
+                display: none !important;
+            }
+            
+            #dom-intro, #dom-outro, #dom-game-over
+            {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                background: #aab;
+                position: absolute;
+                width: 1024px;
+                height: 576px;
+            }
+
+            #dom-outro, #dom-game-over
+            {
+                justify-content: center;
+                font-size: 36px;
+            }
+            
+            #dom-start
+            {
+                cursor: pointer;
+                background: #000;
+                color: #aab;
+                padding: 9px;
+            }
+            
+            #dom-container, #dom-canvas, #dom-map, #dom-map-ui
+            {
+                width: 1024px;
+                height: 576px;
+            }
+
+            .dom-pointer
+            {
+                cursor: pointer;
+            }
+            
+            #dom-ui
+            {
+                position: absolute;
+                pointer-events: none;
+                user-select: none;
+                width: 1024px;
+                height: 576px;
+            }
+            
+            #dom-ui > *
+            {
+                position: absolute;
+            }
+            
+            #dom-lives
+            {
+                left: 10px;
+                top: 10px;
+            }
+
+            #dom-souls
+            {
+                width: 200px;
+            }
+
+            #dom-inventory
+            {
+                top: 436px;
+                left: 287px;
+            }
+            
+            #dom-inventory-slots
+            {
+                position: absolute;
+                display: flex;
+                border: 10px solid #fff;
+                pointer-events: all;
+            }
+
+            #dom-inventory-slots > div:not(:last-child)
+            {
+                border-right: 10px solid #fff;
+            }
+
+            #dom-inventory-slots > div > div
+            {
+                background-color: #000a;
+                width: 100px;
+                height: 100px;
+            }
+            
+            #dom-inventory-slots > div > div > img
+            {
+                pointer-events: none;
+            }
+
+            #dom-inventory-slots > div > div > div
+            {
+                padding-left: 6px;
+                bottom: 0px;
+                color: white;
+                position: absolute;
+                font-size: 20px;
+            }
+
+            #dom-inventory-active
+            {
+                position: absolute;
+                width: 100px;
+                height: 100px;
+                border: 4px solid red;
+                margin: 6px;
+            }
+
+            #dom-tooltip
+            {
+                background: #000c;
+                position: absolute;
+                color: #fff;
+                padding: 12px;
+                border-radius: 12px;
+            }
+
+            #dom-tooltip-header
+            {
+                font-weight: 700;
+                color: #ff7520;
+            }
+
+            #dom-map-bg
+            {
+                cursor: e-resize;
+                pointer-events: all;
+            }
+
+            #dom-map
+            {
+                position: absolute;
+            }
+
+            #dom-map-title
+            {
+                position: relative;
+                color: #fff;
+                display: flex;
+                justify-content: center;
+                top: 5%;
+            }
+
+            .dom-next-room
+            {
+                pointer-events: all;
+                cursor: pointer;
+            }
+
+            #dom-turn
+            {
+                top: 30px;
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            #dom-turn-text
+            {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 400px;
+                height: 30px;
+                line-height: 30px;
+                color: #fff;
+                background: linear-gradient(90deg, #0000, #000a, #000a, #000a, #0000);
+                border-top: 1px solid #fff;
+                border-bottom: 1px solid #fff;
+            }
+
+            #dom-damage > div
+            {
+                position: absolute;
+                font-size: 40px;
+                font-weight: bolder;
+                display: flex;
+                justify-content: center;
+                width: 0;
+                color: #ff7520;
+                user-select: none;
+            }
+
+            #dom-fade
+            {
+                width: 1024px;
+                height: 576px;
+                background: #000;
+                position: absolute;
+                pointer-events: none;
+            }
+
+            #dom-upgrade
+            {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                pointer-events: all;
+
+                background: #000a;
+                color: #fff;
+                left: 100px;
+                right: 100px;
+                top: 80px;
+                bottom: 80px;
+            }
+
+            #dom-reincarnate
+            {
+                background: #ff7520;
+                color: #000;
+                cursor: pointer;
+                padding: 8px;
+            }
+
+            #dom-upgrade-selections
+            {
+                display: flex;
+                flex-direction: row;
+                padding: 20px;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+
+            #dom-upgrade-selections > div
+            {
+                width: 380px;
+                border: 1px solid #ff7520;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #dom-upgrade-selections > div > h2
+            {
+                color: #ff7520;
+            }
+
+            #dom-upgrade-selections > div > div:last-child
+            {
+                background: #ff7520;
+                color: #000;
+                cursor: pointer;
+                padding: 8px;
+                width: 200px;
+            }
+
+            .dom-upgrade-unavailable
+            {
+                opacity: 0.5;
+                cursor: default !important;
+            }
+        </style>
+    
+        <div id="dom-container">
+            <canvas id="dom-canvas" width="1024" height="576"></canvas>
+            <div id="dom-damage"></div>
+            <div id="dom-ui">
+                <div id="dom-lives"></div>
+                <div id="dom-souls"></div>
+                <div id="dom-turn" class="dom-hide">
+                    <div id="dom-turn-text"></div>
+                </div>
+                <div id="dom-inventory">
+                    <div id="dom-inventory-slots">
+                        <div>
+                            <div id="i0"></div>
+                        </div>
+                        <div>
+                            <div id="i1"></div>
+                        </div>
+                        <div>
+                            <div id="i2"></div>
+                        </div>
+                        <div>
+                            <div id="i3"></div>
+                        </div>
+                    </div>
+                    <div id="dom-inventory-active" class="dom-hide"></div>
+                </div>
+                <div id="dom-tooltip" class="dom-hide">
+                    <div id="dom-tooltip-header"></div>
+                    <div id="dom-tooltip-body"></div>
+                </div>
+                <div id="dom-map-ui" class="dom-hide">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 576" id="dom-map">
+                        <rect id="dom-map-bg" width="1024" height="576" fill="#000a" />
+                        <g id="dom-map-g" />
+                    </svg>
+                    <div id="dom-map-title">
+                        Click to select next room. Click & drag to scroll.
+                    </div>
+                </div>
+                <div id="dom-upgrade" class="dom-hide">
+                    <div id="dom-upgrade-selections">
+                        <div>
+                            <h2>Sharp claws</h2>
+                            <div>Claw power +2</div>
+                            <div id="c0"></div>
+                            <div id="u0">Upgrade</div>
+                        </div>
+                        <div>
+                            <h2>Thick fur</h2>
+                            <div>Health +5</div>
+                            <div id="c1"></div>
+                            <div id="u1">Upgrade</div>
+                        </div>
+                        <div>
+                            <h2>Soul catcher</h2>
+                            <div>Souls per enemy +1</div>
+                            <div id="c2"></div>
+                            <div id="u2">Upgrade</div>
+                        </div>
+                        <div>
+                            <h2>Swordsmaster</h2>
+                            <div>Sword power +3</div>
+                            <div id="c3"></div>
+                            <div id="u3">Upgrade</div>
+                        </div>
+                    </div>
+                    <div id="dom-reincarnate">
+                        Reincarnate
+                    </div>
+                </div>
+            </div>
+
+            <div id="dom-fade"></div>
+
+            <div id="dom-intro">
+                <p>
+                    <h2>
+                        -NOT YET-
+                    </h2>
+                    <h3>
+                        Welcome to the Land of the Dead.
+                    </h3>
+                    <div>
+                        It seems the Reaper got a little bit of ahead of himself when he dragged you here.
+                    </div>
+                    <div>
+                        As a catgirl, death is but a minor setback - provided you've got lives left in reserve.
+                    </div>
+                    <div>
+                        Make your way back to the Land of the Living before you meet the ultimate demise.
+                    </div>
+                </p>
+                <div id="dom-start">
+                    Let's get out of here.
+                </div>
+            </div>
+
+            <div id="dom-game-over" class="dom-hide">
+                Game over
+            </div>
+
+            <div id="dom-outro" class="dom-hide">
+                <div>
+                    Bravo!
+                </div>
+                <div>
+                    You win!
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            SCRIPT_GOES_HERE
+        </script>
+    </body>
+</html>
